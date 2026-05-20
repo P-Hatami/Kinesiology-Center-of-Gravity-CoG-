@@ -1,0 +1,60 @@
+% =========================================================================
+% MATLAB Simulation: Parabolic Trajectory in Biomechanics (Long Jump)
+% Description: This script visualizes the trajectory of an athlete's 
+% Center of Gravity (CoG) during a jump. Once airborne, the human body 
+% acts as a projectile, and its CoG traces a perfect parabola.
+% =========================================================================
+
+clc; clear; close all;
+
+% 1. Define Biomechanical Parameters
+g = 9.81;               % Acceleration due to gravity (m/s^2)
+v0 = 8.5;               % Initial takeoff velocity (m/s)
+theta_deg = 22;         % Takeoff angle in degrees (typical for long jump)
+theta = deg2rad(theta_deg); % Convert angle to radians
+h0 = 1.0;               % Initial height of the Center of Gravity at takeoff (m)
+
+% 2. Calculate Time of Flight
+% The jump ends when the CoG lowers to the landing posture height (e.g., h = 0.3m)
+h_land = 0.3;
+
+% Solving the quadratic equation for time: -0.5*g*t^2 + v0*sin(theta)*t + (h0 - h_land) = 0
+a = -0.5 * g;
+b = v0 * sin(theta);
+c = h0 - h_land;
+t_land = max(roots([a, b, c])); % Find the positive root for flight time
+
+% 3. Generate Time Vector and Compute Trajectory
+t = linspace(0, t_land, 100);
+
+% Parametric equations for parabolic projectile motion
+x = v0 * cos(theta) .* t;
+y = h0 + v0 * sin(theta) .* t - 0.5 * g .* t.^2;
+
+% 4. Plot the Parabolic Trajectory
+figure('Name', 'Biomechanics Simulation', 'Color', 'w');
+plot(x, y, 'b-', 'LineWidth', 2.5);
+hold on;
+
+% 5. Highlight Key Biomechanical Events
+% Takeoff point
+plot(x(1), y(1), 'go', 'MarkerSize', 8, 'MarkerFaceColor', 'g');
+text(x(1), y(1)+0.2, 'Takeoff', 'FontWeight', 'bold');
+
+% Peak of the jump (Maximum height of CoG)
+[y_max, max_idx] = max(y);
+plot(x(max_idx), y_max, 'ro', 'MarkerSize', 8, 'MarkerFaceColor', 'r');
+text(x(max_idx)-0.8, y_max+0.2, 'Peak CoG', 'Color', 'r', 'FontWeight', 'bold');
+
+% Landing point
+plot(x(end), y(end), 'ko', 'MarkerSize', 8, 'MarkerFaceColor', 'k');
+text(x(end)-0.8, y(end)+0.2, 'Landing', 'FontWeight', 'bold');
+
+% 6. Formatting and Display Options
+title('Parabolic Trajectory of Center of Gravity in a Long Jump', 'FontSize', 14);
+xlabel('Horizontal Distance (m)', 'FontSize', 11);
+ylabel('Height of CoG (m)', 'FontSize', 11);
+axis equal; % Important for viewing the true geometric shape
+ylim([0, max(y)+0.5]);
+grid on;
+hold off;
